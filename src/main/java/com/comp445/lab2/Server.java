@@ -1,6 +1,8 @@
 package com.comp445.lab2;
 
+import com.comp445.lab2.http.HttpRequest;
 import com.comp445.lab2.http.HttpRequestParser;
+import com.comp445.lab2.http.RequestHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,13 +19,14 @@ import java.nio.charset.Charset;
 import static java.nio.channels.SelectionKey.OP_ACCEPT;
 import static java.nio.channels.SelectionKey.OP_READ;
 
-public class MultiplexEchoServer {
+public class Server {
 
-    private static final Logger logger = LogManager.getLogger(MultiplexEchoServer.class);
+    private static final Logger logger = LogManager.getLogger(Server.class);
+    private static final RequestHandler handler = new RequestHandler();
 
 
     // Uses a single buffer to demonstrate that all clients are running in a single thread
-    private final ByteBuffer buffer = ByteBuffer.allocate(1024);
+    private final ByteBuffer buffer =   ByteBuffer.allocate(1024);
 
     private void readAndEcho(SelectionKey s) {
         SocketChannel client = (SocketChannel) s.channel();
@@ -42,12 +45,15 @@ public class MultiplexEchoServer {
                 buffer.flip();
                 HttpRequestParser parser = new HttpRequestParser();
                 try {
-                    parser.parse(new String(buffer.array(), Charset.forName("UTF-8")));
+                    HttpRequest request = parser.parse(new String(buffer.array(), Charset.forName("UTF-8")));
+                    client.write(ByteBuffer.wrap(handler.handleRequest(request)));
+
                 } catch(Exception e){
                     logger.error(e);
+                    client.write(ByteBuffer.wrap(handler.getErrorResponse()));
                 }
-                client.write(buffer);
-                buffer.clear();
+                finally { buffer.clear(); }
+
             }
         } catch (IOException e) {
             unregisterClient(s);

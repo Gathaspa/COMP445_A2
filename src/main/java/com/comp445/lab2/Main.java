@@ -6,7 +6,6 @@ import joptsimple.OptionSet;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.Scanner;
 
 import static java.util.Arrays.asList;
 
@@ -28,7 +27,7 @@ public class Main {
 
         SocketAddress endpoint = new InetSocketAddress(host, port);
         try {
-            BlockingEchoClient.runClient(endpoint);
+            Client.runClient(endpoint);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -43,7 +42,7 @@ public class Main {
         OptionSet opts = parser.parse(args);
         int port = Integer.parseInt((String) opts.valueOf("port"));
         try {
-            new MultiplexEchoServer().listenAndServe(port);
+            new Server().listenAndServe(port);
         } catch (IOException e) {
             e.printStackTrace();
         }

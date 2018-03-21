@@ -1,6 +1,5 @@
 package com.comp445.lab2;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -9,31 +8,20 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
-public class BlockingEchoClient {
+public class Client {
 
-    // readFully reads until the request is fulfilled or the socket is closed
-    private static void readFully(SocketChannel socket, ByteBuffer buf, int size) throws IOException {
-        while (buf.position() < size) {
-            int n = socket.read(buf);
-            if (n == -1) {
-                break;
-            }
-        }
-        if (buf.position() != size) {
-            throw new EOFException();
-        }
-    }
-
-    private static void readEchoAndRepeat(SocketChannel socket) throws IOException {
+    private static void writeAndReadResponse(SocketChannel socket) throws IOException {
         Charset utf8 = StandardCharsets.UTF_8;
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
+            ByteBuffer buf = ByteBuffer.allocate(1024); // for some reason, if we don't use a new bug in every iteration,
+                                                        // client crashes. should fix.
             String line = scanner.nextLine();
-            ByteBuffer buf = utf8.encode(line);
-            int n = socket.write(buf);
+            buf.put(utf8.encode(line));
+            socket.write(buf);
             buf.clear();
-            // Receive all what we have sent
-            readFully(socket, buf, n);
+            // Receive response back
+            socket.read(buf);
             buf.flip();
             System.out.println("Replied: " + utf8.decode(buf));
         }
@@ -43,7 +31,7 @@ public class BlockingEchoClient {
         try (SocketChannel socket = SocketChannel.open()) {
             socket.connect(endpoint);
             System.out.println("Type any thing then ENTER. Press Ctrl+C to terminate");
-            readEchoAndRepeat(socket);
+            writeAndReadResponse(socket);
         }
     }
 

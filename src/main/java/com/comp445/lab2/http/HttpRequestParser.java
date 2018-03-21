@@ -38,22 +38,24 @@ public class HttpRequestParser {
         if (requestLine == null || requestLine.length() == 0) {
             throw new HttpFormatException("Invalid Request-Line: " + requestLine);
         }
-        String[] splited = requestLine.split("\\s+");
-        if(splited.length != 3){
+        String[] splitRequest = requestLine.split("\\s+");
+        if(splitRequest.length != 3){
             throw new HttpFormatException("Invalid Request-Line: " + requestLine);
         }
-        builder.method(getMethod(splited[0]));
-        builder.uri(splited[1]);
-        builder.httpVersion(splited[2]);
+        builder.method(getMethod(splitRequest[0]));
+        builder.uri(splitRequest[1]);
+        builder.httpVersion(splitRequest[2]);
     }
 
     private HttpMethod getMethod(String method) throws HttpFormatException{
-        if(method.equals("GET"))
-            return HttpMethod.GET;
-        else if(method.equals("POST"))
-            return HttpMethod.POST;
-        else
-            throw new HttpFormatException("Invalid HTTP method: " + method);
+        switch (method) {
+            case "GET":
+                return HttpMethod.GET;
+            case "POST":
+                return HttpMethod.POST;
+            default:
+                throw new HttpFormatException("Invalid HTTP method: " + method);
+        }
     }
 
     private void appendHeaderParameter(String header) throws HttpFormatException {
