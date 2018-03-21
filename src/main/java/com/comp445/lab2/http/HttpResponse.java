@@ -26,4 +26,14 @@ public class HttpResponse {
         response.append(body);
         return response.toString();
     }
+
+    public static HttpResponse getErrorResponse(){
+        return HttpResponse.builder()
+                .httpVersion("HTTP/1.0")
+                .statusCode(400)
+                .reasonPhrase("Bad Request")
+                .header("Content-Type", "text/plain")
+                .body("Invalid request!")
+                .build();
+    }
 }

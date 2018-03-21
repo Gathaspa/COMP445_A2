@@ -1,6 +1,6 @@
 package com.comp445.lab2.file.server;
 
-public enum directoryOutputMethod {
+public enum DirectoryOutputMethod {
     Plain("Plain"),
     JSON("JSON"),
     XML("XML"),
@@ -8,7 +8,7 @@ public enum directoryOutputMethod {
 
     private final String method;
 
-    directoryOutputMethod(final String method) {
+    DirectoryOutputMethod(final String method) {
         this.method = method;
     }
 

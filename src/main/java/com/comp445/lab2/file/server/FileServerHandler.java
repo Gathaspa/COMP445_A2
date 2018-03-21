@@ -1,17 +1,15 @@
 package com.comp445.lab2.file.server;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.Path;
-import java.util.Arrays;
 
 public class FileServerHandler {
-    private File[] files;
+    private static final String FILE_DIR = "src/main/resources/";
 
-    public String fetchDirectory(directoryOutputMethod method) throws IOException {
-        fetchFiles(); // update every time fetch is called in case the directory contents changed.
+    public String fetchDirectory(DirectoryOutputMethod method) {
         switch (method) {
             case Plain:
                 return getFilesInPlain();
@@ -20,32 +18,25 @@ public class FileServerHandler {
         }
     }
 
-    public String fetchFile(String path) throws Exception {
-        fetchFiles(); // update every time fetch is called in case the directory contents changed.
+    public String fetchFile(String path) throws FileNotFoundException {
         try {
-            return new String(Files.readAllBytes(Paths.get("src/main/resources/" + path)));
+            return new String(Files.readAllBytes(Paths.get(FILE_DIR + path)));
         } catch (Exception e) {
-            return "Error: File not found!";
+            throw new FileNotFoundException(path);
         }
     }
 
-    private void fetchFiles() throws IOException {
-        File folder = new File("src/main/resources");
+    private File[] fetchFiles() {
+        File folder = new File(FILE_DIR);
         File[] listOfFiles = folder.listFiles();
-        if (listOfFiles == null) throw new IOException("Invalid Path!");
-        for (File f : listOfFiles) {
-            if (f.isFile()) {
-                System.out.println("File " + f.getName());
-            } else if (f.isDirectory()) {
-                System.out.println("Directory " + f.getName());
-            }
-        }
-        files = listOfFiles;
+        if (listOfFiles == null)
+            return new File[0];
+        return listOfFiles;
     }
 
     private String getFilesInPlain() {
         StringBuilder str = new StringBuilder("files:\n");
-        for (File file : files) {
+        for (File file : fetchFiles()) {
             str.append(file.getName()).append("\n");
         }
         return str.toString();

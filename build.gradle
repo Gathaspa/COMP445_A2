@@ -14,8 +14,13 @@ mainClassName = 'com.comp445.lab2.Main'
 
 sourceCompatibility = 1.8
 
+test {
+    classpath += files("config/test/log")
+}
+
 run {
     standardInput = System.in
+    classpath += files('config/run/log')
 }
 
 repositories {

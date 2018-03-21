@@ -2,7 +2,9 @@ package com.comp445.lab2;
 
 import com.comp445.lab2.http.HttpRequest;
 import com.comp445.lab2.http.HttpRequestParser;
-import com.comp445.lab2.http.RequestHandler;
+import com.comp445.lab2.http.HttpRequestHandler;
+import com.comp445.lab2.http.HttpResponse;
+import com.comp445.lab2.http.exceptions.HttpFormatException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,7 +24,7 @@ import static java.nio.channels.SelectionKey.OP_READ;
 public class Server {
 
     private static final Logger logger = LogManager.getLogger(Server.class);
-    private static final RequestHandler handler = new RequestHandler();
+    private static final HttpRequestHandler handler = new HttpRequestHandler();
 
 
     // Uses a single buffer to demonstrate that all clients are running in a single thread
@@ -46,11 +48,12 @@ public class Server {
                 HttpRequestParser parser = new HttpRequestParser();
                 try {
                     HttpRequest request = parser.parse(new String(buffer.array(), Charset.forName("UTF-8")));
-                    client.write(ByteBuffer.wrap(handler.handleRequest(request)));
-
-                } catch(Exception e){
+                    HttpResponse response = handler.handleRequest(request);
+                    logger.trace(String.format("REQUEST: \n %s \n RESPONSE: \n %s", request, response));
+                    client.write(ByteBuffer.wrap(response.toString().getBytes("UTF-8")));
+                } catch(HttpFormatException e){
                     logger.error(e);
-                    client.write(ByteBuffer.wrap(handler.getErrorResponse()));
+                    client.write(ByteBuffer.wrap(HttpResponse.getErrorResponse().toString().getBytes("UTF-8")));
                 }
                 finally { buffer.clear(); }
 
