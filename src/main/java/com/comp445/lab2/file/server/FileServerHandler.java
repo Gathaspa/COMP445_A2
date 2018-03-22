@@ -20,6 +20,8 @@ public class FileServerHandler {
 
     public String fetchFile(String path) throws FileNotFoundException {
         try {
+            System.out.println(path);
+            System.out.println(path.length());
             return new String(Files.readAllBytes(Paths.get(FILE_DIR + path)));
         } catch (Exception e) {
             throw new FileNotFoundException(path);

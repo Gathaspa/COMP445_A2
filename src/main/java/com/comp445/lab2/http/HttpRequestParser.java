@@ -11,6 +11,7 @@ public class HttpRequestParser {
     private StringBuffer messageBuffer;
 
     public HttpRequest parse(String request) throws HttpFormatException, IOException{
+        System.out.println("Parsing " + request);
         builder = new HttpRequest.HttpRequestBuilder();
         messageBuffer = new StringBuffer();
         BufferedReader reader = new BufferedReader(new StringReader(request));
@@ -18,7 +19,8 @@ public class HttpRequestParser {
         setRequestLine(reader.readLine());
 
         String header = reader.readLine();
-        while (header.length() > 0) {
+
+        while (header != null && header.length() > 0) {
             appendHeaderParameter(header);
             header = reader.readLine();
         }

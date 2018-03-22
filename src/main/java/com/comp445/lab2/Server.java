@@ -28,13 +28,14 @@ public class Server {
 
 
     // Uses a single buffer to demonstrate that all clients are running in a single thread
-    private final ByteBuffer buffer =   ByteBuffer.allocate(1024);
+   // private final ByteBuffer readBuffer =   ByteBuffer.allocate(1024);
 
     private void readAndEcho(SelectionKey s) {
         SocketChannel client = (SocketChannel) s.channel();
         try {
             for (; ; ) {
-                int n = client.read(buffer);
+                ByteBuffer readBuffer = ByteBuffer.allocate(1024);
+                int n = client.read(readBuffer);
                 // If the number of bytes read is -1, the peer is closed
                 if (n == -1) {
                     unregisterClient(s);
@@ -44,18 +45,25 @@ public class Server {
                     return;
                 }
                 // ByteBuffer is tricky, you have to flip when switch from read to write, or vice-versa
-                buffer.flip();
+                readBuffer.flip();
                 HttpRequestParser parser = new HttpRequestParser();
                 try {
-                    HttpRequest request = parser.parse(new String(buffer.array(), Charset.forName("UTF-8")));
+                    HttpRequest request = parser.parse(new String(readBuffer.array(), Charset.forName("UTF-8")));
                     HttpResponse response = handler.handleRequest(request);
                     logger.trace(String.format("REQUEST: \n %s \n RESPONSE: \n %s", request, response));
-                    client.write(ByteBuffer.wrap(response.toString().getBytes("UTF-8")));
+
+                    ByteBuffer writeBuffer = ByteBuffer.wrap(response.toString().getBytes("UTF-8"));
+                    while(writeBuffer.hasRemaining()) {
+                        client.write(writeBuffer);
+                    }
                 } catch(HttpFormatException e){
                     logger.error(e);
-                    client.write(ByteBuffer.wrap(HttpResponse.getErrorResponse().toString().getBytes("UTF-8")));
+                    ByteBuffer buf = ByteBuffer.wrap(HttpResponse.getErrorResponse().toString().getBytes("UTF-8"));
+                    while(buf.hasRemaining()) {
+                        client.write(buf);
+                    }
                 }
-                finally { buffer.clear(); }
+                finally { readBuffer.clear(); }
 
             }
         } catch (IOException e) {

@@ -49,6 +49,6 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        runClient(args);
+        runServer(args);
     }
 }

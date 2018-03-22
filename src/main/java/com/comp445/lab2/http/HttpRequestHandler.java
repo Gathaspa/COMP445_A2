@@ -12,18 +12,18 @@ public class HttpRequestHandler {
         DirectoryOutputMethod method;
         String body;
         if (r.getUri().equals("/")) {
-            switch (r.getHeaders().get("Accept")) {
-                case "text/plain":
-                    method = DirectoryOutputMethod.Plain;
-                    break;
+            switch (r.getHeaders().getOrDefault("Accept", "text/plain")) {
                 case "JSON":
                     method = DirectoryOutputMethod.JSON;
                     break;
                 case "XML":
                     method = DirectoryOutputMethod.XML;
                     break;
-                default:
+                case "HTML":
                     method = DirectoryOutputMethod.HTML;
+                    break;
+                default:
+                    method = DirectoryOutputMethod.Plain;
             }
             body = SFHandler.fetchDirectory(method);
         } else {
@@ -32,8 +32,8 @@ public class HttpRequestHandler {
             } catch (FileNotFoundException e){
                 return HttpResponse.builder()
                         .httpVersion("HTTP/1.0")
-                        .statusCode(400)
-                        .reasonPhrase("Bad Request")
+                        .statusCode(404)
+                        .reasonPhrase("Not Found")
                         .header("Content-Type", "text/plain")
                         .body(String.format("File %s not found", r.getUri()))
                         .build();

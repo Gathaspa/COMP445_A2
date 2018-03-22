@@ -14,16 +14,23 @@ public class Client {
         Charset utf8 = StandardCharsets.UTF_8;
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
-            ByteBuffer buf = ByteBuffer.allocate(1024); // for some reason, if we don't use a new bug in every iteration,
+            //ByteBuffer buf = ByteBuffer.allocate(1024); // for some reason, if we don't use a new bug in every iteration,
                                                         // client crashes. should fix.
             String line = scanner.nextLine();
-            buf.put(utf8.encode(line));
-            socket.write(buf);
+            ByteBuffer buf = utf8.encode(line);
+            //socket.socket().setReceiveBufferSize(1024*1024);
+            //buf.put(utf8.encode(line));
+            while(buf.hasRemaining()) {
+                socket.write(buf);
+            }
             buf.clear();
+
             // Receive response back
-            socket.read(buf);
-            buf.flip();
-            System.out.println("Replied: " + utf8.decode(buf));
+            ByteBuffer readBuf = ByteBuffer.allocate(1024*1024);
+            socket.read(readBuf);
+            readBuf.flip();
+
+            System.out.println("Replied: " + utf8.decode(readBuf));
         }
     }
 
