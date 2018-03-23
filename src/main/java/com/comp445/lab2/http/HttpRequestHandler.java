@@ -4,72 +4,53 @@ import com.comp445.lab2.file.server.FileServerHandler;
 import com.comp445.lab2.file.server.DirectoryOutputMethod;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 
 public class HttpRequestHandler {
     private static FileServerHandler SFHandler = new FileServerHandler();
 
     public HttpResponse handleRequest(HttpRequest r) {
+        if (r.getUri().contains("../")) return HttpResponse.getUnauthorisedResponse();
         if (r.getUri().equals("/") && r.getMethod() == HttpMethod.GET) return getRoot(r);
         else if (r.getMethod() == HttpMethod.GET) return getFile(r);
         else if (r.getMethod() == HttpMethod.POST) return postFile(r);
-        else return HttpResponse.getErrorResponse();
+        else return HttpResponse.getInvalidRequestResponse();
     }
 
     private HttpResponse getRoot(HttpRequest r) {
         DirectoryOutputMethod method;
-        String body;
         switch (r.getHeaders().getOrDefault("Accept", "text/plain")) {
-            case "JSON":
+            case "application/json":
                 method = DirectoryOutputMethod.JSON;
                 break;
-            case "XML":
+            case "application/xml":
                 method = DirectoryOutputMethod.XML;
                 break;
-            case "HTML":
+            case "text/html":
                 method = DirectoryOutputMethod.HTML;
                 break;
             default:
                 method = DirectoryOutputMethod.Plain;
         }
-        body = SFHandler.fetchDirectory(method);
-        return HttpResponse.builder()
-                .httpVersion("HTTP/1.0")
-                .statusCode(200)
-                .reasonPhrase("OK")
-                .header("Content-Type", "text/plain")
-                .body(body)
-                .build();
+        String body = SFHandler.fetchDirectory(method);
+        return HttpResponse.getValidResponseWithMessage(body);
     }
 
     private HttpResponse getFile(HttpRequest r) {
-        String body;
         try {
-            body = SFHandler.fetchFile(r.getUri().substring(1)); // strip path of its initial "/"
-        } catch (FileNotFoundException e) {
-            return HttpResponse.builder()
-                    .httpVersion("HTTP/1.0")
-                    .statusCode(404)
-                    .reasonPhrase("Not Found")
-                    .header("Content-Type", "text/plain")
-                    .body(String.format("File %s not found", r.getUri()))
-                    .build();
-        }
-        return HttpResponse.builder()
-                .httpVersion("HTTP/1.0")
-                .statusCode(200)
-                .reasonPhrase("OK")
-                .header("Content-Type", "text/plain")
-                .body(body)
-                .build();
+            String body = SFHandler.fetchFile(r.getUri().substring(1)); // strip path of its initial "/"
+            return HttpResponse.getValidResponseWithMessage(body);
+        } catch (FileNotFoundException e) { return HttpResponse.getFileNoteFoundResponse(); }
     }
 
     private HttpResponse postFile(HttpRequest r) {
         try {
-            SFHandler.writeFile(r.getUri().substring(1), r.getBody());  // strip path of its initial "/"
+
+            String path = r.getUri().substring(1); // strip path of its initial "/"
+            SFHandler.writeFile(path, r.getBody());
+            return HttpResponse.getValidResponseWithMessage("File " + path + " successfully written.");
         } catch (Exception e) {
-            return HttpResponse.getErrorResponse();
+            return HttpResponse.getInvalidRequestResponse();
         }
-        return getFile(r);
     }
+
 }

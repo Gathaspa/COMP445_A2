@@ -38,7 +38,7 @@ public class HttpRequestParserTest {
 
     @Test(expected = HttpFormatException.class)
     public void testParseRequest_withInvalidMethod_shouldThrow() throws Exception{
-        final String requestString = "FUCK /cgi-bin/process.cgi HTTP/1.1\n" +
+        final String requestString = "HTTP/1.0 /cgi-bin/process.cgi HTTP/1.1\n" +
                 "User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)\n" +
                 "Host: www.tutorialspoint.com\n" +
                 "Content-Type: application/x-www-form-urlencoded\n" +

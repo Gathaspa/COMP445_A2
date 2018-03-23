@@ -28,13 +28,43 @@ public class HttpResponse {
         return response.toString();
     }
 
-    public static HttpResponse getErrorResponse(){
+    public static HttpResponse getValidResponseWithMessage(String message) {
+        return HttpResponse.builder()
+                .httpVersion("HTTP/1.0")
+                .statusCode(200)
+                .reasonPhrase("OK")
+                .header("Content-Type", "text/plain")
+                .body(message)
+                .build();
+    }
+
+    public static HttpResponse getInvalidRequestResponse() {
         return HttpResponse.builder()
                 .httpVersion("HTTP/1.0")
                 .statusCode(400)
                 .reasonPhrase("Bad Request")
                 .header("Content-Type", "text/plain")
                 .body("Invalid request!")
+                .build();
+    }
+
+    public static HttpResponse getUnauthorisedResponse() {
+        return HttpResponse.builder()
+                .httpVersion("HTTP/1.0")
+                .statusCode(403)
+                .reasonPhrase("Forbidden")
+                .header("Content-Type", "text/plain")
+                .body("You are not allowed to access this directory!")
+                .build();
+    }
+
+    public static HttpResponse getFileNoteFoundResponse() {
+        return HttpResponse.builder()
+                .httpVersion("HTTP/1.0")
+                .statusCode(404)
+                .reasonPhrase("Not Found")
+                .header("Content-Type", "text/plain")
+                .body("File not found!")
                 .build();
     }
 }

@@ -17,4 +17,18 @@ public class HttpRequest {
     private Map<String, String> headers;
     private String queries;
     private String body;
+
+    @Override
+    public String toString() {
+
+        // TODO: doesn't handle queries and port properly atm
+        StringBuilder response = new StringBuilder(method + " " + uri + " " + httpVersion + "\r\n");
+        for (Map.Entry<String, String> header : headers.entrySet()) {
+            response.append(header.getKey()).append(": ").append(header.getValue()).append("\r\n");
+        }
+        response.append("\r\n");
+        response.append(body);
+        response.append("\r\n\r\n");
+        return response.toString();
+    }
 }

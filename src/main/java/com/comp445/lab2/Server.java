@@ -48,7 +48,13 @@ public class Server {
                 readBuffer.flip();
                 HttpRequestParser parser = new HttpRequestParser();
                 try {
-                    HttpRequest request = parser.parse(new String(readBuffer.array(), Charset.forName("UTF-8")));
+
+                    byte[] remaining = new byte[readBuffer.remaining()];
+                    readBuffer.get(remaining);  // make new buffer that is exactly the size of the string request
+                                                // that was passed.
+                    String request_string = new String(remaining, Charset.forName("UTF-8"));
+                    System.out.println("request_string: " + request_string +"\nend request_string");
+                    HttpRequest request = parser.parse(request_string);
                     HttpResponse response = handler.handleRequest(request);
                     logger.trace(String.format("REQUEST: \n%s \nRESPONSE: \n%s", request, response));
 
@@ -58,7 +64,7 @@ public class Server {
                     }
                 } catch(HttpFormatException e){
                     logger.error(e);
-                    ByteBuffer buf = ByteBuffer.wrap(HttpResponse.getErrorResponse()
+                    ByteBuffer buf = ByteBuffer.wrap(HttpResponse.getInvalidRequestResponse()
                             .toString().getBytes("UTF-8"));
                     while(buf.hasRemaining()) {
                         client.write(buf);
@@ -105,7 +111,6 @@ public class Server {
                 // Readable means this client has sent data or closed
             } else if (s.isReadable()) {
                 readAndRespond(s);
-                //unregisterClient(s);
             }
         }
         // We must clear this set, otherwise the select will return the same value again

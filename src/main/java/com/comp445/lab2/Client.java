@@ -14,7 +14,6 @@ public class Client {
         while(true) {
             Charset utf8 = StandardCharsets.UTF_8;
             String inpt = getUserInput();
-            System.out.println(inpt);
             if(inpt.equals("")) continue; // in case first line sent in request is a '.'
             ByteBuffer buf = utf8.encode(inpt);
             while(buf.hasRemaining()) {

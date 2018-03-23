@@ -11,14 +11,20 @@ public class FileServerHandler {
         switch (method) {
             case Plain:
                 return getFilesInPlain();
-            default:
+            case XML:
+            case HTML:
+            case JSON:
                 return "Not Implemented Yet"; // TODO
         }
     }
 
     public String fetchFile(String path) throws FileNotFoundException {
         try {
-            return new String(Files.readAllBytes(Paths.get(FILE_DIR + path)));
+            File f = new File(FILE_DIR + path);
+
+            synchronized (f.getCanonicalPath().intern()) {
+                return new String(Files.readAllBytes(Paths.get(FILE_DIR + path)));
+            }
         } catch (Exception e) {
             throw new FileNotFoundException(path);
         }
@@ -40,10 +46,24 @@ public class FileServerHandler {
         return str.toString();
     }
 
+    private String getFilesInHtml() {
+
+    }
+
+    private String getFilesInXml() {
+
+    }
+
+    private String getFilesInJson() {
+
+    }
     public void writeFile(String path, String body) throws IOException {
-        PrintWriter writer = new PrintWriter(FILE_DIR + path, "UTF-8");
-        writer.println(body);
-        writer.close();
+        File f = new File(FILE_DIR + path);
+        synchronized (f.getCanonicalPath().intern()) {
+            PrintWriter writer = new PrintWriter(FILE_DIR + path, "UTF-8");
+            writer.println(body);
+            writer.close();
+        }
 
     }
 }
