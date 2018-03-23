@@ -10,7 +10,7 @@ import java.net.SocketAddress;
 import static java.util.Arrays.asList;
 
 public class Main {
-    public static void runClient(String[] args){
+    public static void runClient(String[] args) {
         OptionParser parser = new OptionParser();
         parser.acceptsAll(asList("host", "h"), "EchoServer hostname")
                 .withOptionalArg()
@@ -33,7 +33,7 @@ public class Main {
         }
     }
 
-    public static void runServer(String[] args){
+    public static void runServer(String[] args) {
         OptionParser parser = new OptionParser();
         parser.acceptsAll(asList("port", "p"), "Listening port")
                 .withOptionalArg()

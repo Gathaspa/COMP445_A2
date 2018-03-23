@@ -57,6 +57,7 @@ public class FileServerHandler {
     private String getFilesInJson() {
 
     }
+
     public void writeFile(String path, String body) throws IOException {
         File f = new File(FILE_DIR + path);
         synchronized (f.getCanonicalPath().intern()) {

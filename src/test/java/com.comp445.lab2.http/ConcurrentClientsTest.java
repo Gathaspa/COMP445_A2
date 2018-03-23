@@ -1,5 +1,6 @@
 package com.comp445.lab2.http;
 
+import com.comp445.lab2.ThreadedClient;
 import org.junit.Test;
 
 import java.util.concurrent.ExecutorService;
@@ -15,7 +16,7 @@ public class ConcurrentClientsTest {
         ThreadedClient[] threadpool = new ThreadedClient[numofthreads];
 
         // file writers
-        for(int i = 0; i < numofthreads; i+= 2){
+        for (int i = 0; i < numofthreads; i += 2) {
             threadpool[i] = new ThreadedClient(String.valueOf(i));
             threadpool[i].setRequest(HttpRequest.builder()
                     .method(HttpMethod.POST)
@@ -26,7 +27,7 @@ public class ConcurrentClientsTest {
         }
 
         // file readers
-        for(int i = 1; i < numofthreads; i+=2) {
+        for (int i = 1; i < numofthreads; i += 2) {
             threadpool[i] = new ThreadedClient(String.valueOf(i));
             threadpool[i].setRequest(HttpRequest.builder()
                     .method(HttpMethod.GET)
@@ -36,10 +37,10 @@ public class ConcurrentClientsTest {
                     .build());
         }
 
-            for (int i = 0; i < numofthreads; i++) {
-                executor.execute(threadpool[i]);
-            }
-
+        for (int i = 0; i < numofthreads; i++) {
+            executor.execute(threadpool[i]);
         }
+
+    }
 
 }

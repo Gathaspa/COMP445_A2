@@ -39,7 +39,9 @@ public class HttpRequestHandler {
         try {
             String body = SFHandler.fetchFile(r.getUri().substring(1)); // strip path of its initial "/"
             return HttpResponse.getValidResponseWithMessage(body);
-        } catch (FileNotFoundException e) { return HttpResponse.getFileNoteFoundResponse(); }
+        } catch (FileNotFoundException e) {
+            return HttpResponse.getFileNoteFoundResponse();
+        }
     }
 
     private HttpResponse postFile(HttpRequest r) {

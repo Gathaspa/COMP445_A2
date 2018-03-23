@@ -11,23 +11,21 @@ import java.util.Scanner;
 public class Client {
 
     private static void writeAndReadResponse(SocketChannel socket) throws IOException {
-        while(true) {
-            Charset utf8 = StandardCharsets.UTF_8;
-            String inpt = getUserInput();
-            if(inpt.equals("")) continue; // in case first line sent in request is a '.'
-            ByteBuffer buf = utf8.encode(inpt);
-            while(buf.hasRemaining()) {
-                socket.write(buf);
-            }
-            buf.clear();
-
-            // Receive response back
-            ByteBuffer readBuf = ByteBuffer.allocate(1024*1024);
-            socket.read(readBuf);
-            readBuf.flip();
-
-            System.out.println("Replied: " + utf8.decode(readBuf));
+        Charset utf8 = StandardCharsets.UTF_8;
+        String inpt = getUserInput();
+        if (inpt.equals("")) return; // in case first line sent in request is a '.'
+        ByteBuffer buf = utf8.encode(inpt);
+        while (buf.hasRemaining()) {
+            socket.write(buf);
         }
+        buf.clear();
+
+        // Receive response back
+        ByteBuffer readBuf = ByteBuffer.allocate(1024 * 1024);
+        socket.read(readBuf);
+        readBuf.flip();
+
+        System.out.println("Replied: " + utf8.decode(readBuf));
     }
 
     public static void runClient(SocketAddress endpoint) throws IOException {

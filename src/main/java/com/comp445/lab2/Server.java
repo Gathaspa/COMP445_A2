@@ -28,7 +28,7 @@ public class Server {
 
 
     // Uses a single buffer to demonstrate that all clients are running in a single thread
-   // private final ByteBuffer readBuffer =   ByteBuffer.allocate(1024);
+    // private final ByteBuffer readBuffer =   ByteBuffer.allocate(1024);
 
     private void readAndRespond(SelectionKey s) {
         SocketChannel client = (SocketChannel) s.channel();
@@ -51,26 +51,27 @@ public class Server {
 
                     byte[] remaining = new byte[readBuffer.remaining()];
                     readBuffer.get(remaining);  // make new buffer that is exactly the size of the string request
-                                                // that was passed.
+                    // that was passed.
                     String request_string = new String(remaining, Charset.forName("UTF-8"));
-                    System.out.println("request_string: " + request_string +"\nend request_string");
+                    System.out.println("request_string: " + request_string + "\nend request_string");
                     HttpRequest request = parser.parse(request_string);
                     HttpResponse response = handler.handleRequest(request);
                     logger.trace(String.format("REQUEST: \n%s \nRESPONSE: \n%s", request, response));
 
                     ByteBuffer writeBuffer = ByteBuffer.wrap(response.toString().getBytes("UTF-8"));
-                    while(writeBuffer.hasRemaining()) {
+                    while (writeBuffer.hasRemaining()) {
                         client.write(writeBuffer);
                     }
-                } catch(HttpFormatException e){
+                } catch (HttpFormatException e) {
                     logger.error(e);
                     ByteBuffer buf = ByteBuffer.wrap(HttpResponse.getInvalidRequestResponse()
                             .toString().getBytes("UTF-8"));
-                    while(buf.hasRemaining()) {
+                    while (buf.hasRemaining()) {
                         client.write(buf);
                     }
+                } finally {
+                    readBuffer.clear();
                 }
-                finally { readBuffer.clear(); }
 
             }
         } catch (IOException e) {
@@ -111,6 +112,7 @@ public class Server {
                 // Readable means this client has sent data or closed
             } else if (s.isReadable()) {
                 readAndRespond(s);
+                unregisterClient(s);
             }
         }
         // We must clear this set, otherwise the select will return the same value again
@@ -126,7 +128,7 @@ public class Server {
             // Register the server socket to be notified when there is a new incoming client
             logger.info("Server Listening on port " + String.valueOf(port));
             server.register(selector, OP_ACCEPT, null);
-            while(true) {
+            while (true) {
                 runLoop(server, selector);
             }
         }

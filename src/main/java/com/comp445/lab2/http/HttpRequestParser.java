@@ -10,7 +10,7 @@ public class HttpRequestParser {
     private HttpRequest.HttpRequestBuilder builder;
     private StringBuffer messageBuffer;
 
-    public HttpRequest parse(String request) throws HttpFormatException, IOException{
+    public HttpRequest parse(String request) throws HttpFormatException, IOException {
         System.out.println("Parsing " + request);
         builder = new HttpRequest.HttpRequestBuilder();
         messageBuffer = new StringBuffer();
@@ -41,7 +41,7 @@ public class HttpRequestParser {
             throw new HttpFormatException("Invalid Request-Line: " + requestLine);
         }
         String[] splitRequest = requestLine.split("\\s+");
-        if(splitRequest.length != 3){
+        if (splitRequest.length != 3) {
             throw new HttpFormatException("Invalid Request-Line: " + requestLine);
         }
         builder.method(getMethod(splitRequest[0]));
@@ -49,7 +49,7 @@ public class HttpRequestParser {
         builder.httpVersion(splitRequest[2]);
     }
 
-    private HttpMethod getMethod(String method) throws HttpFormatException{
+    private HttpMethod getMethod(String method) throws HttpFormatException {
         switch (method) {
             case "GET":
                 return HttpMethod.GET;
@@ -69,7 +69,7 @@ public class HttpRequestParser {
     }
 
     private void appendMessageBody(String bodyLine) {
-        if(messageBuffer.length() != 0)
+        if (messageBuffer.length() != 0)
             messageBuffer.append("\r\n");
         messageBuffer.append(bodyLine);
     }

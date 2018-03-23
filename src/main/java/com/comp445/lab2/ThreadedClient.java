@@ -1,5 +1,6 @@
-package com.comp445.lab2.http;
+package com.comp445.lab2;
 
+import com.comp445.lab2.http.HttpRequest;
 import lombok.Builder;
 import lombok.Data;
 
@@ -22,32 +23,31 @@ public class ThreadedClient extends Thread {
 
     public void run() {
         if (socketaddress == null) socketaddress = new InetSocketAddress("localhost", 8007);
-        System.out.println("Run: "+ getName());
+        System.out.println("Run: " + getName());
         try (SocketChannel socket = SocketChannel.open()) {
             socket.connect(socketaddress);
             writeAndReadResponse(socket);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             System.out.print("Unrecoverable failure encountered when trying to connect to the socket. Killing Thread "
                     + getName());
             System.exit(0);
         }
     }
 
-    private void writeAndReadResponse (SocketChannel socket) throws IOException {
+    private void writeAndReadResponse(SocketChannel socket) throws IOException {
         Charset utf8 = StandardCharsets.UTF_8;
         ByteBuffer buf = utf8.encode(getRequest().toString());
-        while(buf.hasRemaining()) {
+        while (buf.hasRemaining()) {
             socket.write(buf);
         }
         buf.clear();
 
         // Receive response back
-        ByteBuffer readBuf = ByteBuffer.allocate(1024*1024);
+        ByteBuffer readBuf = ByteBuffer.allocate(1024 * 1024);
         socket.read(readBuf);
         readBuf.flip();
 
-        System.out.println("Replied to Thread " + getName() +": " + utf8.decode(readBuf));
+        System.out.println("Replied to Thread " + getName() + ": " + utf8.decode(readBuf));
     }
 
 }
