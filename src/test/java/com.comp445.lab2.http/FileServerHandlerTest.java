@@ -22,7 +22,7 @@ public class FileServerHandlerTest {
     public void testFetchFile_WithValidFile_shouldReturnValidResponse() throws Exception {
         FileServerHandler FSHandler = new FileServerHandler();
         String fileContents = FSHandler.fetchFile("test1.txt");
-        assertEquals(fileContents, "hey there");
+        assertEquals("hey there", fileContents);
     }
 
     @Test(expected = FileNotFoundException.class)

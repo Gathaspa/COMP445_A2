@@ -1,8 +1,6 @@
 package com.comp445.lab2.file.server;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -20,8 +18,6 @@ public class FileServerHandler {
 
     public String fetchFile(String path) throws FileNotFoundException {
         try {
-            System.out.println(path);
-            System.out.println(path.length());
             return new String(Files.readAllBytes(Paths.get(FILE_DIR + path)));
         } catch (Exception e) {
             throw new FileNotFoundException(path);
@@ -42,5 +38,12 @@ public class FileServerHandler {
             str.append(file.getName()).append("\n");
         }
         return str.toString();
+    }
+
+    public void writeFile(String path, String body) throws IOException {
+        PrintWriter writer = new PrintWriter(FILE_DIR + path, "UTF-8");
+        writer.println(body);
+        writer.close();
+
     }
 }

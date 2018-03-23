@@ -30,7 +30,7 @@ public class Server {
     // Uses a single buffer to demonstrate that all clients are running in a single thread
    // private final ByteBuffer readBuffer =   ByteBuffer.allocate(1024);
 
-    private void readAndEcho(SelectionKey s) {
+    private void readAndRespond(SelectionKey s) {
         SocketChannel client = (SocketChannel) s.channel();
         try {
             for (; ; ) {
@@ -50,7 +50,7 @@ public class Server {
                 try {
                     HttpRequest request = parser.parse(new String(readBuffer.array(), Charset.forName("UTF-8")));
                     HttpResponse response = handler.handleRequest(request);
-                    logger.trace(String.format("REQUEST: \n %s \n RESPONSE: \n %s", request, response));
+                    logger.trace(String.format("REQUEST: \n%s \nRESPONSE: \n%s", request, response));
 
                     ByteBuffer writeBuffer = ByteBuffer.wrap(response.toString().getBytes("UTF-8"));
                     while(writeBuffer.hasRemaining()) {
@@ -58,7 +58,8 @@ public class Server {
                     }
                 } catch(HttpFormatException e){
                     logger.error(e);
-                    ByteBuffer buf = ByteBuffer.wrap(HttpResponse.getErrorResponse().toString().getBytes("UTF-8"));
+                    ByteBuffer buf = ByteBuffer.wrap(HttpResponse.getErrorResponse()
+                            .toString().getBytes("UTF-8"));
                     while(buf.hasRemaining()) {
                         client.write(buf);
                     }
@@ -103,7 +104,8 @@ public class Server {
 
                 // Readable means this client has sent data or closed
             } else if (s.isReadable()) {
-                readAndEcho(s);
+                readAndRespond(s);
+                //unregisterClient(s);
             }
         }
         // We must clear this set, otherwise the select will return the same value again
@@ -117,8 +119,9 @@ public class Server {
             Selector selector = Selector.open();
 
             // Register the server socket to be notified when there is a new incoming client
+            logger.info("Server Listening on port " + String.valueOf(port));
             server.register(selector, OP_ACCEPT, null);
-            for (; ; ) {
+            while(true) {
                 runLoop(server, selector);
             }
         }

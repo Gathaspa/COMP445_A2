@@ -11,15 +11,12 @@ import java.util.Scanner;
 public class Client {
 
     private static void writeAndReadResponse(SocketChannel socket) throws IOException {
-        Charset utf8 = StandardCharsets.UTF_8;
-        Scanner scanner = new Scanner(System.in);
-        while (scanner.hasNextLine()) {
-            //ByteBuffer buf = ByteBuffer.allocate(1024); // for some reason, if we don't use a new bug in every iteration,
-                                                        // client crashes. should fix.
-            String line = scanner.nextLine();
-            ByteBuffer buf = utf8.encode(line);
-            //socket.socket().setReceiveBufferSize(1024*1024);
-            //buf.put(utf8.encode(line));
+        while(true) {
+            Charset utf8 = StandardCharsets.UTF_8;
+            String inpt = getUserInput();
+            System.out.println(inpt);
+            if(inpt.equals("")) continue; // in case first line sent in request is a '.'
+            ByteBuffer buf = utf8.encode(inpt);
             while(buf.hasRemaining()) {
                 socket.write(buf);
             }
@@ -37,10 +34,21 @@ public class Client {
     public static void runClient(SocketAddress endpoint) throws IOException {
         try (SocketChannel socket = SocketChannel.open()) {
             socket.connect(endpoint);
-            System.out.println("Type any thing then ENTER. Press Ctrl+C to terminate");
+            System.out.println("Type any request, write a line with a single '.' to end request. Press Ctrl+C to terminate");
             writeAndReadResponse(socket);
         }
     }
 
+    private static String getUserInput() {
+        StringBuilder builder = new StringBuilder();
+        Scanner scanner = new Scanner(System.in);
+
+        while (scanner.hasNextLine()) {
+            String line = scanner.nextLine();
+            if (line.equals(".")) break;
+            builder.append(line + "\r\n");
+        }
+        return builder.toString();
+    }
 }
 

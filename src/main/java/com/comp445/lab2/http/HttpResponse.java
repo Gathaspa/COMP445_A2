@@ -24,6 +24,7 @@ public class HttpResponse {
         }
         response.append("\r\n");
         response.append(body);
+        response.append("\r\n\r\n");
         return response.toString();
     }
 
