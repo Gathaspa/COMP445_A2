@@ -9,12 +9,14 @@ public class FileServerHandler {
 
     public String fetchDirectory(DirectoryOutputMethod method) {
         switch (method) {
-            case Plain:
-                return getFilesInPlain();
             case XML:
+                return getFilesInXml();
             case HTML:
+                return getFilesInHtml();
             case JSON:
-                return "Not Implemented Yet"; // TODO
+                return getFilesInJson();
+            default:
+                return getFilesInPlain();
         }
     }
 
@@ -47,15 +49,36 @@ public class FileServerHandler {
     }
 
     private String getFilesInHtml() {
-
+        StringBuilder str = new StringBuilder("<!DOCTYPE html>\n" +
+                "<head><title>File List</title></head>\n<body>\n" +
+                "<table style=\"border: 1px solid black;\">\n");
+        for (File file : fetchFiles()) {
+            str.append("<tr>\n<td>").append(file.getName()).append("</td>\n</tr>\n");
+        }
+        str.append("</table>\n</body>\n</html>");
+        return str.toString();
     }
 
     private String getFilesInXml() {
-
+            StringBuilder str = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                    "<table style=\"border: 1px solid black;\">\n");
+            for (File file : fetchFiles()) {
+                str.append("<tr>\n<td>").append(file.getName()).append("</td>\n</tr>\n");
+            }
+            str.append("</table>");
+            return str.toString();
     }
 
     private String getFilesInJson() {
-
+        StringBuilder str = new StringBuilder("[");
+        File[] files = fetchFiles();
+        for (int i = 0; i < files.length; i++) {
+            str.append(String.format("\"%s\"",files[i].getName()));
+            if(i != files.length - 1)
+                str.append(",");
+        }
+        str.append("]");
+        return str.toString();
     }
 
     public void writeFile(String path, String body) throws IOException {

@@ -31,14 +31,34 @@ public class HttpRequestHandler {
             default:
                 method = DirectoryOutputMethod.Plain;
         }
+        // method = DirectoryOutputMethod.JSON; // FOR THE LAB
         String body = SFHandler.fetchDirectory(method);
-        return HttpResponse.getValidResponseWithMessage(body);
+        return HttpResponse.builder()
+                .httpVersion("HTTP/1.0")
+                .statusCode(200)
+                .reasonPhrase("OK")
+                .header("Content-Type", method.toString())
+                .body(body)
+                .build();
     }
 
-    private HttpResponse getFile(HttpRequest r) {
+    private HttpResponse getFile(HttpRequest req) {
         try {
-            String body = SFHandler.fetchFile(r.getUri().substring(1)); // strip path of its initial "/"
-            return HttpResponse.getValidResponseWithMessage(body);
+            String path = req.getUri().substring(1);
+            String body = SFHandler.fetchFile(path); // strip path of its initial "/"
+            HttpResponse.HttpResponseBuilder builder = HttpResponse.builder()
+                    .httpVersion("HTTP/1.0")
+                    .statusCode(200)
+                    .reasonPhrase("OK")
+                    .header("Content-Type", "text/plain");
+            if (req.getHeaders().getOrDefault("Content-Disposition", "inline").equals("attachment")) {
+                builder.header("Content-Disposition", String.format("attachment; filename=%s", path));
+            } else {
+                builder.header("Content-Disposition", "inline");
+            }
+            builder.body(body);
+            builder.header("Content-Length", String.valueOf(body.length()));
+            return builder.build();
         } catch (FileNotFoundException e) {
             return HttpResponse.getFileNoteFoundResponse();
         }

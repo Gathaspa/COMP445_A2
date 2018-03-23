@@ -1,8 +1,7 @@
 package com.comp445.lab2;
 
 import com.comp445.lab2.http.HttpRequest;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -11,7 +10,8 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-@Data
+@Getter
+@Setter
 public class ThreadedClient extends Thread {
 
     private HttpRequest request;

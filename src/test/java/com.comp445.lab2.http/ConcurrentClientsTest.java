@@ -1,17 +1,20 @@
 package com.comp445.lab2.http;
 
 import com.comp445.lab2.ThreadedClient;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ConcurrentClientsTest {
-
+    private static final Logger logger = LogManager.getLogger(ConcurrentClientsTest.class);
     @Test
-    public void testWith10ClientsWritingToFile() {
+    public void testWith10ClientsWritingToFile() throws InterruptedException {
 
         int numofthreads = 10;
+
         ExecutorService executor = Executors.newFixedThreadPool(numofthreads);
         ThreadedClient[] threadpool = new ThreadedClient[numofthreads];
 
@@ -20,7 +23,7 @@ public class ConcurrentClientsTest {
             threadpool[i] = new ThreadedClient(String.valueOf(i));
             threadpool[i].setRequest(HttpRequest.builder()
                     .method(HttpMethod.POST)
-                    .uri("/test2.txt")
+                    .uri("/test2.txt ")
                     .httpVersion("HTTP/1.0")
                     .body(threadpool[i].getName())
                     .build());
@@ -40,7 +43,6 @@ public class ConcurrentClientsTest {
         for (int i = 0; i < numofthreads; i++) {
             executor.execute(threadpool[i]);
         }
-
     }
 
 }
