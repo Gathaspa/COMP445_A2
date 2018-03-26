@@ -1,10 +1,10 @@
 package com.comp445.lab2.file.server;
 
 public enum DirectoryOutputMethod {
-    Plain("Plain"),
-    JSON("JSON"),
-    XML("XML"),
-    HTML("HTML");
+    Plain("text/plain"),
+    JSON("application/json"),
+    XML("application/xml"),
+    HTML("text/html");
 
     private final String method;
 
